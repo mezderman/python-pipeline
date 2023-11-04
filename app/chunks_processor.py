@@ -4,8 +4,10 @@ from unstructured.partition.auto import partition
 from unstructured.chunking.title import chunk_by_title
 
 from app.shared.azure_service import AzureService
+from app.shared.queue_service import QueueService
 from app.shared.composite_element_decoder import CompositeElementEncoder
 
+queue_service = QueueService()
 
 def process_message_data(message_json):
     container_name = message_json['blobContainerName']
@@ -56,7 +58,13 @@ def process_message_data(message_json):
         #update upstream event
         chunks_blob_client.upload_blob(serialized, overwrite=True)
 
+        # Get blob properties
+        chunks_blob_properties = chunks_blob_client.get_blob_properties()
 
+        # Size of the blob in bytes
+        chunk_blob_size_bytes = chunks_blob_properties.size
+
+        queue_service.send_chunks_message(filename, chunk_blob_size_bytes)
 
     
 

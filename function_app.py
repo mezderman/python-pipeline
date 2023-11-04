@@ -2,7 +2,7 @@ import azure.functions as func
 from azure.storage.blob import BlobServiceClient, ContainerClient
 import logging,sys,json
 from pathlib import Path
-from app.message_processor import process_message_data
+from app.chunks_processor import process_message_data
 
 # Ensure that the directory containing shared code is on the Python path
 root_dir = Path(__file__).parent
@@ -10,7 +10,7 @@ sys.path.insert(0, str(root_dir))
 
 app = func.FunctionApp()
 
-@app.queue_trigger(arg_name="azqueue", queue_name="myqueue",
+@app.queue_trigger(arg_name="azqueue", queue_name="docs-processing-queue",
                                connection="QueueConnectionString") 
 def queue_trigger(azqueue: func.QueueMessage):
     logging.info('Python Queue trigger processed a message: %s',

@@ -1,5 +1,5 @@
 import os
-from azure.storage.blob import BlobServiceClient, ContainerClient
+from azure.storage.blob import BlobServiceClient
 
 class AzureService:
 
