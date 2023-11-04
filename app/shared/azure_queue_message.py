@@ -1,5 +1,4 @@
-import json
-import uuid
+import json, uuid
 from datetime import datetime, timedelta
 import os
 
