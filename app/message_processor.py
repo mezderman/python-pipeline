@@ -1,4 +1,6 @@
 import os, tempfile, json, hashlib, sys
+from unstructured.partition.pdf import partition_pdf
+from unstructured.partition.auto import partition
 
 from app.shared.azure_service import AzureService
 # from azure.storage.blob import BlobServiceClient, ContainerClient
@@ -36,11 +38,12 @@ def process_message_data(message_json):
         
         # This will only be reached if temp_path is assigned a value
         if temp_path and os.path.exists(temp_path):
-            print(mime_type)
-            #pdf
-            # if mime_type == 'application/pdf':
-            #     elements = partition_pdf(temp_path)
-            #     clean_elements(elements)
+            
+            elements = partition(filename=temp_path, content_type=mime_type)
+
+            # TODO decide what content we’d like to keep
+                
+            print("\n\n".join([str(el) for el in elements][:10]))
 
 
 
