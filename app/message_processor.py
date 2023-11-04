@@ -1,9 +1,10 @@
 import os, tempfile, json, hashlib, sys
-from unstructured.partition.pdf import partition_pdf
+
 from unstructured.partition.auto import partition
+from unstructured.chunking.title import chunk_by_title
 
 from app.shared.azure_service import AzureService
-# from azure.storage.blob import BlobServiceClient, ContainerClient
+from app.shared.composite_element_decoder import CompositeElementEncoder
 
 
 def process_message_data(message_json):
@@ -16,34 +17,44 @@ def process_message_data(message_json):
     #check if this file was already processed
     content_hash = hashlib.md5(blob_name.encode()).hexdigest()
     filename = f"{content_hash}.json"
-    embeddings_blob_client = azure_service.get_blob_client('embeddings', filename)
+    chunks_blob_client = azure_service.get_blob_client('chunks', filename)
 
-    # process only new files
-    if not azure_service.blob_exists(embeddings_blob_client):
-        blob_client = azure_service.get_blob_client(container_name, blob_name)
+    
+    blob_client = azure_service.get_blob_client(container_name, blob_name)
+    
+    props = blob_client.get_blob_properties()
+    # content_type = props['content_settings']['content_type'] #mime_type
+    temp_path = None  # Initialize temp_path to None
+    
+    try:
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            blob_data = blob_client.download_blob()
+            temp.write(blob_data.readall())
+            temp_path = temp.name
+    
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return f"Error occurred: {e}"  # Return early if there's an error
+    
+    # This will only be reached if temp_path is assigned a value
+    if temp_path and os.path.exists(temp_path):
         
-        props = blob_client.get_blob_properties()
-        # content_type = props['content_settings']['content_type'] #mime_type
-        temp_path = None  # Initialize temp_path to None
-        
-        try:
-            with tempfile.NamedTemporaryFile(delete=False) as temp:
-                blob_data = blob_client.download_blob()
-                temp.write(blob_data.readall())
-                temp_path = temp.name
-          
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            return f"Error occurred: {e}"  # Return early if there's an error
-        
-        # This will only be reached if temp_path is assigned a value
-        if temp_path and os.path.exists(temp_path):
+        elements = partition(filename=temp_path, content_type=mime_type)
+
+        # TODO decide what content we’d like to keep
+
+        #chunk doc
+        chunks = chunk_by_title(elements)
             
-            elements = partition(filename=temp_path, content_type=mime_type)
+        # for chunk in chunks:
+        #     print(chunk)
+        #     print("\n\n" + "-"*80)
 
-            # TODO decide what content we’d like to keep
-                
-            print("\n\n".join([str(el) for el in elements][:10]))
+        serialized = json.dumps(chunks, cls=CompositeElementEncoder)
+        serialized_json = json.loads(serialized)
+        
+        #update upstream event
+        chunks_blob_client.upload_blob(serialized, overwrite=True)
 
 
 
