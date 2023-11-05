@@ -1,7 +1,12 @@
+# Standard library imports
+import json, logging, sys
+from pathlib import Path
+
+# Related third party imports
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient, ContainerClient
-import logging,sys,json
-from pathlib import Path
+
+# Local application/library specific imports
 from app.chunks_processor import process_message_data
 
 # Ensure that the directory containing shared code is on the Python path

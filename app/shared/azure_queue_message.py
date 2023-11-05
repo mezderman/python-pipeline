@@ -1,6 +1,6 @@
-import json, uuid
+# Standard library imports
+import json, uuid, os
 from datetime import datetime, timedelta
-import os
 
 # Assuming the schema is for your internal use and not for direct Azure Queue attributes
 class AzureQueueMessage:

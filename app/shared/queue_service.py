@@ -1,7 +1,13 @@
+# Standard library imports
 import os
+
+# Related third-party imports
 from azure.storage.queue import QueueClient
+
+# Local application/library specific imports
 from app.shared.azure_queue_message import AzureQueueMessage
 from app.shared.azure_service import AzureService
+
 
 #singleton
 class QueueService:

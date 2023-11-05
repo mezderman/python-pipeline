@@ -1,6 +1,6 @@
-import os
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import QueueClient
+import os
 
 #Singleton
 class AzureService:

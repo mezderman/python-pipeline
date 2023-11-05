@@ -1,11 +1,15 @@
+# Standard library imports
 import os, tempfile, json, hashlib, sys
 
+# Related third party imports
 from unstructured.partition.auto import partition
 from unstructured.chunking.title import chunk_by_title
 
+# Local application/library specific imports
 from app.shared.azure_service import AzureService
-from app.shared.queue_service import QueueService
 from app.shared.composite_element_decoder import CompositeElementEncoder
+from app.shared.queue_service import QueueService
+
 
 queue_service = QueueService()
 
