@@ -21,8 +21,8 @@ class AzureService:
         return cls._instance
     
     def __init__(self):
-        print("init Azure Services")
         if not self._is_initialized:
+            print("init Azure Services")
             self._connection_string = os.getenv('AzureWebJobsStorage', 'default_value_if_not_set')
             self._blob_service_client = BlobServiceClient.from_connection_string(self._connection_string)
             self._docs_processing_queue_client = QueueClient.from_connection_string(self._connection_string, "docs-processing-queue")
