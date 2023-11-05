@@ -12,13 +12,12 @@ from app.shared.queue_service import QueueService
 
 
 queue_service = QueueService()
+azure_service= AzureService()
 
 def process_message_data(message_json):
     container_name = message_json['blobContainerName']
     blob_name = message_json['blobName']
     mime_type = message_json['mimeType']
-
-    azure_service= AzureService()
 
     #check if this file was already processed
     content_hash = hashlib.md5(blob_name.encode()).hexdigest()
